@@ -79,6 +79,11 @@
 
 \title{[DRAFT]: Best Practices for Thermodynamic Property Prediction from Molecular Simulations}
 
+\author{Owen Madin}
+%MRS: what's your middle initial? 
+\email{bryce.manubay@colorado.edu}
+\affiliation{University of Colorado}
+
 \author{Bryce C. Manubay} 
 \email{bryce.manubay@colorado.edu}
 \affiliation{University of Colorado}
@@ -616,9 +621,11 @@ For a timeseries to satisfy the Ergodic Hypothesis and allow for calculation of 
 In this work, this automatic equilibration algorithm is used in all analysis.  It is important to note, however, that algorithms like this should not be used in a vacuum;  the user should periodically check to make sure that the algorithm is functioning properly, and have a rudimentary understanding of how it works.
 
 Another important factor in the calculation of thermophysical properties is the collection of \emph{uncorrelated} equilibrium samples from an equilibrated timeseries.  Although the system may be at equilibrium constantly after the burn-in period, samples close to each other in time are likely correlated.  Two common methods for obtaining uncorrelated samples are through subsampling and block averaging.  In block averaging, the timeseries is separated into "blocks" of data and observations are taken from the mean of each block.  This requires for a size of block to be chosen, and as the block size increases, the variance of the observable will eventually reach a plateau where samples are uncorrelated.  Another method is subsampling, where the statistical inefficiency $g$ is estimated and then snapshots are chosen based on this parameter, without averaging.  In this work, subsampling is used for all calculations.
+%MRS: Hmm. This is an important part of best practices, so we need to see the difference in these approaches.
 
 \subsection{System Size}
 For the number of molecules $M$, relationships with uncertainty are more complicated and vary from property to property.   This can lead to unintuitive results in which a larger $M$ may reduce uncertainty in one physical quantity, but for a \emph{derived} property of said quantity, the same increase in $M$ may not improve estimates.
+%MRS: derived and derivative are not the same.
 
 \subsubsection{Enthalpy and Heat Capacity}
 This is best illustrated with the example of energy and heat capacity.  From Eq. 19, %CHECK may need to replace
@@ -637,7 +644,8 @@ So, the standard deviation of the molar enthalpy goes as $\mathcal{O} (M^{-\frac
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth-40pt]{enthalpy_stdev_vs_number_of_molecules.pdf}
-\caption{Figure shows enthalpy \% uncertainty (calculated as $(\sigma_{h}/h) \times 100 \%$) vs. $M$ for simulations of liquid cyclohexane at 293.15 K, 1.01 bar, calculated via fluctuations. $\mathcal{O} (M^{-\frac{1}{2}})$ on $M$.}
+%MRS: Fraction is better than percent.
+\caption{Enthalpy \% uncertainty (calculated as $(\sigma_{h}/h) \times 100 \%$) vs. $M$ for simulations of liquid cyclohexane at 293.15 K, 1.01 bar, calculated via fluctuations. $\mathcal{O} (M^{-\frac{1}{2}})$ on $M$.}
 \end{figure}
 
 Now, we examine the uncertainty behavior of $C_P$, the extensive heat capacity.  Since we know $C_P \sim Var(H)$, it follows that $ Var(C_P) \sim Var(Var(H)) $.  For normally distributed samples, the variance of the variance is given by:
@@ -663,10 +671,12 @@ So, even though estimates of the molar enthalpy $h$ improve as the size of the s
 For the volume $V$, the standard deviation also goes as $\mathcal{O}(M^{-\frac{1}{2}}$.  This follows from the information we already know about energy and enthalpy and the relationship between the two.  Since they are related by $H=E+PV$, and the variance of $H$ and $E$ both go as $\mathcal{O}(M)$ due to their relationship with the heat capacities $C_P$ and $C_V$, the variance of $V$ must also go as $\mathcal{O}(M)$.  By similiar analysis to that for the molar enthalpy $h$, it follows that the standard deviation of the molar volume $v$ goes as $\mathcal{O}(M^{-\frac{1}{2}}$, and this claim is supported by experimental data in figure. %INSERT
 \begin{figure}[H]
 \includegraphics[width=\textwidth-40pt]{cp_stdev_vs_number_of_molecules.pdf}
-\caption{Figure shows heat capacity \% uncertainty (calculated as $(\sigma_{C_P}/C_P) \times 100 \%$) vs. $M$ for simulations of liquid cyclohexane at 293.15 K, 1.01 bar, calculated via fluctuations. No dependence on $M$.}
+%Fraction better than percent.
+\caption{Heat capacity \% uncertainty (calculated as $(\sigma_{C_P}/C_P) \times 100 \%$) vs. $M$ for simulations of liquid cyclohexane at 293.15 K, 1.01 bar, calculated via fluctuations. No dependence on $M$.}
 \end{figure}
 
 For the isothermal compressibility, the variance is easy to calculate once the variance of the volume is known.  From Eq. 23, we can see that with constant temperature, the variance of $\kappa_T$ is as such:
+%MRS: use eqnarray for longer series of equations.
 \begin{equation}
 Var(\kappa_T) \sim Var \left( \frac{Var(V)}{V}\right) = \frac{1}{V^2}Var(Var(V))
 \end{equation}
@@ -705,8 +715,9 @@ When using MBAR finite differences, the problem is opposite: MBAR estimates are 
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth-40pt]{kt_vs_n_eff.pdf}
-\caption{Percent deviation from fluctuation value as a function of $N_eff$.  Dashed red line indicates minimum requirement of 50 samples.  Error bars indicate bootstrapped 95\% CI}
+\caption{Percent deviation from fluctuation value as a function of $N_{eff}$.  Dashed red line indicates minimum requirement of 50 samples.  Error bars indicate bootstrapped 95\% CI}
 %Add similar figure for c_p to show differences 
+%MRS: Yes, I'd like to see it!
 \end{figure}
 
   Since the number of effective samples is easily adjusted, as a best practice, we recommend a percentage of effective samples of 90 \% or higher.  It is also important to recognize that for properties that require reweighting in multiple variables, such as speed of sound, the number of effective samples for all variables needs to be taken into account (in the example of speed of sound, $T$ and $P$).  In general, comparison with fluctuation calculations is the ultimate metric for accuracy of MBAR finite differences.
