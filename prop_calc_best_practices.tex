@@ -605,6 +605,8 @@ An additional issue is the necessity of having to use gas phase simulation data 
 
 \section{Numerical Considerations}
 
+\todo{Ensure torsions are adequately sampled, both in gas and liquid. This has been found to be an issue for e.g. the hydrogen syn/anti conformation of carboxylic acids.}
+
 \subsection{Quality of Timeseries Data}
 With the finite computing resources that are available today, it is often necessary to make trade-offs between the uncertainty of the result and the amount of time/resources spent.  As a major assumption of Molecular Dynamics simulations is the Ergodic Hypothesis, sampling over a timeseries will only be equivalent in the limit of infinite time. In all other cases, the timeseries generated from MD will function as an \emph{approximation} to phase space sampling. As this is the case, there is an inherent decision to be made in the collection of all timeseries data: how much effort does one need to spend to get a result with the appropriate confidence for the specific problem being addressed? 
 
@@ -690,6 +692,18 @@ For thermophysical properties that are calculated from several other basic prope
 From these analyses, we can see that properties taken from direct averages of timeseries data, ($V$, $E$, $H$) have standard deviation that goes as $\mathcal{O}(M^{\frac{1}{2}})$.  The molar versions of these properties subsequently have standard deviation that goes as $\mathcal{O}(M^{-\frac{1}{2}})$.  However, this does not imply the same for properties calculated via fluctuations.  Fluctuation properties can have standard deviation as $\mathcal{O}(M)$, like $C_P$, or with no dependence on $M$, like $c_P$ or $\kappa_T$.  Additionally, they can have a very weak dependence on $M$, such as speed of sound $c$.  Because of these varying dependencies between quantities, and the extra computational cost of a larger system size, we recommend that additional computational resources be used to collect more equilibrium samples, which has a consistent effect on uncertainty for all properties.  This recommendation comes with the caveat that systems need to be large enough to avoid finite size effects.  When systems are too small, systems may not equilibrate very quickly, amongst other problems.  For a more in-depth discussion of finite size effects, see. %CITE need to find good reference..
 It is also important to remember when modifying the number of molecules in a system that Molecular Dynamics programs report energies in units of energy/mole of box, rather than energy per mole of compound.  For pure compounds, one must divide the "moles of box" value by the number of molecules in order to get a true molar energy.
 
+\subsection{Potential pitfalls}
+\subsubsection{Heats of vaporization}
+\begin{enumerate}
+\item Ensure torsions are adequately sampled, both in gas and
+  liquid. This has been found to be an issue for e.g. the hydrogen
+  syn/anti conformation of carboxylic acids.
+\item Ensure constraints (e.g. SHAKE of R-H bonds) are set as
+  desired, as turning on SHAKE for R-H bonds has been found to
+  yield differences in DH computed of several kcal/mol, despite making
+  this change consistently in both the gas and liquid phases.
+\item Just as a note: we should check for time-step dependence.
+\end{enumerate}
 
 \subsection{Comparison of Calculation Methods}
 
