@@ -79,7 +79,7 @@
 
 \title{[DRAFT]: Best Practices for Thermodynamic Property Prediction from Molecular Simulations}
 
-\author{Owen Madin}
+\author{Owen C Madin}
 %MRS: what's your middle initial? 
 \email{bryce.manubay@colorado.edu}
 \affiliation{University of Colorado}
@@ -455,8 +455,30 @@ Where $ \gamma=\frac{C_P}{C_V} $.
 %MRS: I'm not as much an expert on this: you should follow up.  Also,
 %probably use something other than $M$ as the dipole.
 \subsubsection{Dielectric Constant}
-This equation was provided by a literature reference authored by CJ Fennell\cite{dielec} and is the standard for calculating the dielectric constant. Below, $\epsilon(0)$ is the zero frequency dielectric constant, $V$ is the system volume and $D$ is the total system dipole moment. 
+
+The dielectric constant is a simple and important quantity of interest in parameterization, as it can capture some of the accuracy of the electrostatics of the system.  Fundamentally, the dielectric constant is a related to the polarization of a material when an external field is applied: \cite{riniker_calculation_2011}
+\begin{equation} \vec{P} = \frac{1}{4\pi}(\epsilon(0)-1)\vec{E}^{ext} \end{equation}
+
+Fundamentally, there are two ways that this dielectric constant can be calculated.
+
+The first, and most common, is to use the fluctuations of the system dipole moment $\vec{M}$ in the limit of low field strength.  This method allows for the calculation of dielectrics from equilibrium simulations without an applied electric field, and with long-range interactions calculated via PME.  
+For this method, the equation was provided by a literature reference authored by CJ Fennell\cite{fennell_simple_2012} and is the standard for calculating the dielectric constant. Below, $\epsilon(0)$ is the zero frequency dielectric constant, $V$ is the system volume and $D$ is the total system dipole moment. 
 \begin{equation} \epsilon(0) = 1 + \frac{4 \pi}{3 k_B T \langle V \rangle}(\langle D^2 \rangle - \langle D \rangle^2) \end{equation}
+
+A second way of doing this is by applying an external electric field and measuring the polarization response in the direction of that field. The equation for this method, given by Riniker \cite{riniker_calculation_2011} is as follows:
+
+\begin{equation} \epsilon(0) = 1 +4 \pi \frac{\langle M_z \rangle}{VE_z^{ext}}  \end{equation}
+
+This method apparently takes a bit more care to implement that the fluctuation method, as it is important to ensure that the response of the Polarization is in the linear regime (low field strength), where this regime changes from material to material.  This method is also generally used with a dielectric continuum rather than periodic boundary conditions, which may affect its utility.  However, when implemented properly, this method can yield the same results as the fluctuation method with an order of magnitude less time.  For fluctuations, simulations of 10 ns or longer are recommended for convergence, while Riniker\cite{riniker_calculation_2011} found that only 500 ps per field strength (calculated with multiple field strengths) was sufficient.  Kolafa \cite{kolafa_static_2014} suggests the metric of saturation of polarization $S$ as a metric to assess whether the response is in the linear regime.  The saturation of polarization is defined as the polarization of the system divided by the total possible polarization of the system, i.e. all molecules are aligned.  
+
+The saturation is given by the following two equations, for fluctuations and external field respectively:
+
+\begin{equation} S= \frac{\langle D^2 \rangle^{1/2}}{N\mu} \end{equation}
+
+\begin{equation} S = \frac{\langle D_z \rangle}{N\mu} \end{equation}
+
+Where $\mu$ is the dipole moment of the individual molecule, and $N$ is the number of molecules in the system. Kolafa suggests a target value of $ S \leq 0.1$ to keep systematic error from the saturation to a minimum.
+
 
 %------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -550,6 +572,8 @@ Where:
 \begin{equation}\left(\frac{\partial E_{vib}^{QM}}{\partial T}\right)_{P} = \sum_{i=1}^{n_{vib}} \left(\frac{h^2 v_{i}^2 e^{\frac{h v_{i}}{k_B T}}}{k_B T^2 \left(e^{\frac{h v_{i}}{k_B T}} - 1\right)^2}\right)\end{equation}\\*
 
 Above, $n_{vib}$ is the number of vibrational modes, $h$ is Planck's constant and $v_i$ is the vibrational frequency of mode $i$.
+
+In their 2012 OPLS/GAFF benchmark paper (https://pubs.acs.org/doi/10.1021/ct200731v), van der Spoel \emph{et. al} use a density of states - based method for obtaining $C_v$, which results in better agreement with experiment. 
 
 %-----------------------------------------------------------------------------------------------------------------------------------------
 
